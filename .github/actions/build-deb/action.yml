@@ -1,0 +1,70 @@
+name: 'Build Debian Package'
+description: 'Build signalk-halpi .deb package (Architecture: all, pure JavaScript)'
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '22'
+        cache: 'npm'
+
+    - name: Build TypeScript
+      shell: bash
+      run: npm ci --ignore-scripts && npm run build
+
+    - name: Assemble .deb package
+      shell: bash
+      run: |
+        VERSION=$(cat VERSION)
+
+        # Get Debian version from changelog if available (release builds),
+        # otherwise use VERSION directly (PR lintian checks)
+        if [ -f debian/changelog ]; then
+          DEB_VERSION=$(head -1 debian/changelog | sed 's/.*(\(.*\)).*/\1/')
+        else
+          DEB_VERSION="${VERSION}"
+        fi
+
+        SK_DATA="var/lib/container-apps/marine-signalk-server-container/data/data"
+        PKG_DIR="pkg/signalk-halpi_${DEB_VERSION}_all"
+
+        # Create package structure
+        mkdir -p "${PKG_DIR}/DEBIAN"
+        mkdir -p "${PKG_DIR}/${SK_DATA}/system-plugins/signalk-halpi/dist"
+        mkdir -p "${PKG_DIR}/usr/share/doc/signalk-halpi"
+        mkdir -p "${PKG_DIR}/usr/share/lintian/overrides"
+
+        # Install plugin files
+        cp package.json "${PKG_DIR}/${SK_DATA}/system-plugins/signalk-halpi/"
+        cp -r dist/* "${PKG_DIR}/${SK_DATA}/system-plugins/signalk-halpi/dist/"
+
+        # Generate binary control file
+        {
+          echo "Package: signalk-halpi"
+          echo "Version: ${DEB_VERSION}"
+          echo "Architecture: all"
+          echo "Maintainer: Hat Labs Ltd <info@hatlabs.fi>"
+          echo "Description: Signal K plugin for HALPI2 device monitoring"
+          echo " Publishes HALPI2 power management, temperature, watchdog, and USB"
+          echo " status data to Signal K via the halpid daemon Unix socket."
+        } > "${PKG_DIR}/DEBIAN/control"
+
+        # Copy maintainer scripts
+        cp debian/postinst "${PKG_DIR}/DEBIAN/"
+        cp debian/postrm "${PKG_DIR}/DEBIAN/"
+        chmod 755 "${PKG_DIR}/DEBIAN/postinst" "${PKG_DIR}/DEBIAN/postrm"
+
+        # Install copyright and lintian overrides
+        cp debian/copyright "${PKG_DIR}/usr/share/doc/signalk-halpi/"
+        cp debian/signalk-halpi.lintian-overrides "${PKG_DIR}/usr/share/lintian/overrides/signalk-halpi"
+
+        # Build .deb
+        dpkg-deb --build "${PKG_DIR}"
+
+        # Move to workspace root
+        mv "pkg/signalk-halpi_${DEB_VERSION}_all.deb" .
+
+        echo "Built: signalk-halpi_${DEB_VERSION}_all.deb"
+        ls -lh "signalk-halpi_${DEB_VERSION}_all.deb"

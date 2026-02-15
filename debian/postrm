@@ -1,0 +1,33 @@
+#!/bin/sh
+set -e
+
+SK_DATA="/var/lib/container-apps/marine-signalk-server-container/data/data"
+SK_SERVICE="marine-signalk-server-container.service"
+
+case "$1" in
+    remove)
+        # Remove the symlink (leave system-plugins intact for reinstall)
+        rm -f "$SK_DATA/node_modules/signalk-halpi"
+
+        # Restart Signal K so it stops loading the plugin
+        if [ -d /run/systemd/system ]; then
+            systemctl restart "$SK_SERVICE" || true
+        fi
+        ;;
+    purge)
+        # Remove symlink
+        rm -f "$SK_DATA/node_modules/signalk-halpi"
+
+        # Remove plugin config
+        rm -f "$SK_DATA/plugin-config-data/signalk-halpi.json"
+
+        # Restart Signal K
+        if [ -d /run/systemd/system ]; then
+            systemctl restart "$SK_SERVICE" || true
+        fi
+        ;;
+esac
+
+#DEBHELPER#
+
+exit 0

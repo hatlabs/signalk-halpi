@@ -1,0 +1,5 @@
+# No manual page for this Signal K plugin
+signalk-halpi: no-manual-page
+
+# Initial upload, no ITP bug
+signalk-halpi: initial-upload-closes-no-bugs

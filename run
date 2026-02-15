@@ -20,6 +20,7 @@ Commands:
   format:check    Check formatting
   typecheck       Run TypeScript type checking
   ci              Run all CI checks (typecheck, lint, format:check, test)
+  bumpversion     Bump version (patch|minor|major)
   hooks-install   Install lefthook pre-commit hooks
   help            Show this help message
 
@@ -59,6 +60,13 @@ case "${1:-help}" in
         ;;
     ci)
         npm run ci
+        ;;
+    bumpversion)
+        if [ -z "${2:-}" ]; then
+            echo "Usage: ./run bumpversion <patch|minor|major>"
+            exit 1
+        fi
+        bumpversion "$2"
         ;;
     hooks-install)
         npx lefthook install

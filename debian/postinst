@@ -1,0 +1,42 @@
+#!/bin/sh
+set -e
+
+SK_DATA="/var/lib/container-apps/marine-signalk-server-container/data/data"
+SK_SERVICE="marine-signalk-server-container.service"
+
+case "$1" in
+    configure)
+        # Create symlink from node_modules to system-plugins
+        # ln -sfn handles both fresh install and upgrade-after-npm-uninstall
+        if [ -d "$SK_DATA/system-plugins/signalk-halpi" ]; then
+            mkdir -p "$SK_DATA/node_modules"
+            ln -sfn ../system-plugins/signalk-halpi "$SK_DATA/node_modules/signalk-halpi"
+        fi
+
+        # Auto-enable plugin on first install (don't override existing config)
+        CONFIG_DIR="$SK_DATA/plugin-config-data"
+        CONFIG_FILE="$CONFIG_DIR/signalk-halpi.json"
+        if [ ! -f "$CONFIG_FILE" ]; then
+            mkdir -p "$CONFIG_DIR"
+            cat > "$CONFIG_FILE" << 'CONF'
+{
+  "enabled": true,
+  "enableLogging": false,
+  "enableDebug": false,
+  "configuration": {
+    "pathPrefix": "electrical.halpi"
+  }
+}
+CONF
+        fi
+
+        # Restart Signal K to pick up the plugin
+        if [ -d /run/systemd/system ]; then
+            systemctl restart "$SK_SERVICE" || true
+        fi
+        ;;
+esac
+
+#DEBHELPER#
+
+exit 0
