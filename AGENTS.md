@@ -48,8 +48,8 @@ signalk-halpi/
 │   │   └── check-versions/ # VERSION ↔ package.json consistency
 │   └── workflows/
 │       ├── pr.yml         # PR checks (shared workflow)
-│       ├── main.yml       # Build release + npm publish
-│       └── release.yml    # Publish stable to APT
+│       ├── main.yml       # Build .deb, dispatch to unstable APT
+│       └── release.yml    # Publish stable to APT + npm
 ├── debian/                # Debian packaging metadata
 ├── VERSION                # Single source of version truth
 ├── .bumpversion.cfg       # Keeps VERSION and package.json in sync
@@ -111,7 +111,7 @@ The .deb installs compiled plugin files to `system-plugins/signalk-halpi/` withi
 
 ## npm Publishing
 
-The main.yml workflow publishes to npm when the VERSION changes (skips Debian-only revision bumps). The `prepublishOnly` script ensures TypeScript is compiled before publish.
+The release.yml workflow publishes to npm on stable releases using trusted publishing (OIDC). Only publishes when the VERSION changes (skips Debian-only revision bumps).
 
 ## Git Workflow Policy
 

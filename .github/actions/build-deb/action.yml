@@ -45,6 +45,8 @@ runs:
           echo "Package: signalk-halpi"
           echo "Version: ${DEB_VERSION}"
           echo "Architecture: all"
+          echo "Section: misc"
+          echo "Priority: optional"
           echo "Maintainer: Hat Labs Ltd <info@hatlabs.fi>"
           echo "Description: Signal K plugin for HALPI2 device monitoring"
           echo " Publishes HALPI2 power management, temperature, watchdog, and USB"
@@ -56,12 +58,29 @@ runs:
         cp debian/postrm "${PKG_DIR}/DEBIAN/"
         chmod 755 "${PKG_DIR}/DEBIAN/postinst" "${PKG_DIR}/DEBIAN/postrm"
 
-        # Install copyright and lintian overrides
+        # Install copyright
         cp debian/copyright "${PKG_DIR}/usr/share/doc/signalk-halpi/"
+
+        # Generate and install changelog
+        if [ -f debian/changelog ]; then
+          gzip -9cn debian/changelog > "${PKG_DIR}/usr/share/doc/signalk-halpi/changelog.gz"
+        else
+          # Minimal changelog for PR lintian checks
+          printf "signalk-halpi (%s) unstable; urgency=medium\n\n  * Build\n\n -- Hat Labs <info@hatlabs.fi>  %s\n" \
+            "${DEB_VERSION}" "$(date -R)" > /tmp/changelog
+          gzip -9cn /tmp/changelog > "${PKG_DIR}/usr/share/doc/signalk-halpi/changelog.gz"
+        fi
+
+        # Install lintian overrides
         cp debian/signalk-halpi.lintian-overrides "${PKG_DIR}/usr/share/lintian/overrides/signalk-halpi"
 
-        # Build .deb
-        dpkg-deb --build "${PKG_DIR}"
+        # Generate md5sums (exclude DEBIAN/)
+        cd "${PKG_DIR}"
+        find . -path ./DEBIAN -prune -o -type f -print0 | xargs -0 md5sum | sed 's| \./| |' > DEBIAN/md5sums
+        cd -
+
+        # Build .deb (--root-owner-group sets all files to root:root)
+        dpkg-deb --root-owner-group --build "${PKG_DIR}"
 
         # Move to workspace root
         mv "pkg/signalk-halpi_${DEB_VERSION}_all.deb" .

@@ -1,5 +1,3 @@
-# No manual page for this Signal K plugin
-signalk-halpi: no-manual-page
-
-# Initial upload, no ITP bug
-signalk-halpi: initial-upload-closes-no-bugs
+# Intentional: restarting a container service, not managing a systemd unit
+signalk-halpi: maintainer-script-calls-systemctl [postinst:*]
+signalk-halpi: maintainer-script-calls-systemctl [postrm:*]
