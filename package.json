@@ -1,6 +1,6 @@
 {
   "name": "signalk-halpi",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Signal K plugin for HALPI2 device monitoring via halpid daemon",
   "type": "module",
   "main": "dist/index.js",
