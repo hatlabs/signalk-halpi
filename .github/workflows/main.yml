@@ -19,6 +19,6 @@ jobs:
       package-name: signalk-halpi
       package-description: 'Signal K plugin for HALPI2 device monitoring'
       apt-distro: trixie
-      apt-component: main
+      apt-component: hatlabs
     secrets:
       APT_REPO_PAT: ${{ secrets.APT_REPO_PAT }}
