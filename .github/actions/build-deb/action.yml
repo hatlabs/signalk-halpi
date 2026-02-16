@@ -48,9 +48,11 @@ runs:
           echo "Section: misc"
           echo "Priority: optional"
           echo "Maintainer: Hat Labs Ltd <info@hatlabs.fi>"
+          echo "Depends: marine-signalk-server-container"
           echo "Description: Signal K plugin for HALPI2 device monitoring"
-          echo " Publishes HALPI2 power management, temperature, watchdog, and USB"
-          echo " status data to Signal K via the halpid daemon Unix socket."
+          echo " Installs the signalk-halpi plugin into the marine-signalk-server-container"
+          echo " Signal K instance. Publishes HALPI2 power management, temperature, watchdog,"
+          echo " and USB status data to Signal K via the halpid daemon Unix socket."
         } > "${PKG_DIR}/DEBIAN/control"
 
         # Copy maintainer scripts
