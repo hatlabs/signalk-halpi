@@ -14,7 +14,7 @@ permissions:
 
 jobs:
   build-release:
-    uses: halos-org/shared-workflows/.github/workflows/build-release.yml@main
+    uses: hatlabs/shared-workflows/.github/workflows/build-release.yml@main
     with:
       package-name: signalk-halpi
       package-description: 'Signal K plugin for HALPI2 device monitoring'
