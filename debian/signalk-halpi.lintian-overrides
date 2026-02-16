@@ -1,3 +1,6 @@
 # Intentional: restarting a container service, not managing a systemd unit
 signalk-halpi: maintainer-script-calls-systemctl [postinst:*]
 signalk-halpi: maintainer-script-calls-systemctl [postrm:*]
+
+# Not intended for Debian archive, no ITP bug
+signalk-halpi: initial-upload-closes-no-bugs

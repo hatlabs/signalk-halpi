@@ -62,13 +62,20 @@ runs:
         cp debian/copyright "${PKG_DIR}/usr/share/doc/signalk-halpi/"
 
         # Generate and install changelog
+        # Versions with a hyphen (e.g. 0.1.0-1) are non-native: changelog.Debian.gz
+        # Versions without (e.g. 0.1.0) are native: changelog.gz
+        if echo "${DEB_VERSION}" | grep -q '-'; then
+          CHANGELOG_NAME="changelog.Debian.gz"
+        else
+          CHANGELOG_NAME="changelog.gz"
+        fi
         if [ -f debian/changelog ]; then
-          gzip -9cn debian/changelog > "${PKG_DIR}/usr/share/doc/signalk-halpi/changelog.gz"
+          gzip -9cn debian/changelog > "${PKG_DIR}/usr/share/doc/signalk-halpi/${CHANGELOG_NAME}"
         else
           # Minimal changelog for PR lintian checks
           printf "signalk-halpi (%s) unstable; urgency=medium\n\n  * Build\n\n -- Hat Labs <info@hatlabs.fi>  %s\n" \
             "${DEB_VERSION}" "$(date -R)" > /tmp/changelog
-          gzip -9cn /tmp/changelog > "${PKG_DIR}/usr/share/doc/signalk-halpi/changelog.gz"
+          gzip -9cn /tmp/changelog > "${PKG_DIR}/usr/share/doc/signalk-halpi/${CHANGELOG_NAME}"
         fi
 
         # Install lintian overrides
