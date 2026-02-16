@@ -7,5 +7,3 @@ on:
 jobs:
   checks:
     uses: halos-org/shared-workflows/.github/workflows/pr-checks.yml@main
-    with:
-      skip-lintian: true

@@ -1,0 +1,14 @@
+Source: signalk-halpi
+Section: misc
+Priority: optional
+Maintainer: Hat Labs Ltd <info@hatlabs.fi>
+Build-Depends: debhelper-compat (= 13), nodejs (>= 22), npm
+Standards-Version: 4.6.0
+Homepage: https://github.com/hatlabs/signalk-halpi
+
+Package: signalk-halpi
+Architecture: all
+Depends: ${misc:Depends}
+Description: Signal K plugin for HALPI2 device monitoring
+ Publishes HALPI2 power management, temperature, watchdog, and USB
+ status data to Signal K via the halpid daemon Unix socket.

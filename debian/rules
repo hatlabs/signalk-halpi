@@ -1,0 +1,21 @@
+#!/usr/bin/make -f
+
+SK_DATA = /var/lib/container-apps/marine-signalk-server-container/data/data
+
+%:
+	dh $@
+
+override_dh_auto_build:
+	npm ci --ignore-scripts
+	npm run build
+
+override_dh_auto_install:
+	install -d debian/signalk-halpi$(SK_DATA)/system-plugins/signalk-halpi
+	install -m 644 package.json debian/signalk-halpi$(SK_DATA)/system-plugins/signalk-halpi/
+	cp -r dist debian/signalk-halpi$(SK_DATA)/system-plugins/signalk-halpi/
+
+override_dh_auto_clean:
+	rm -rf dist node_modules
+
+override_dh_auto_test:
+	# Tests run in PR checks, skip during package build
