@@ -13,7 +13,7 @@ jobs:
     uses: hatlabs/shared-workflows/.github/workflows/publish-stable.yml@main
     with:
       apt-distro: trixie
-      apt-component: main
+      apt-component: hatlabs
     secrets:
       APT_REPO_PAT: ${{ secrets.APT_REPO_PAT }}
 
