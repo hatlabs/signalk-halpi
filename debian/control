@@ -8,7 +8,7 @@ Homepage: https://github.com/hatlabs/signalk-halpi
 
 Package: signalk-halpi
 Architecture: all
-Depends: ${misc:Depends}, marine-signalk-server-container
+Depends: ${misc:Depends}, marine-signalk-server-container, halos-halpi2-marine
 Description: Signal K plugin for HALPI2 device monitoring
  Installs the signalk-halpi plugin into the marine-signalk-server-container
  Signal K instance. Publishes HALPI2 power management, temperature, watchdog,
