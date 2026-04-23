@@ -36,8 +36,17 @@ runs:
         mkdir -p "${PKG_DIR}/usr/share/doc/signalk-halpi"
         mkdir -p "${PKG_DIR}/usr/share/lintian/overrides"
 
-        # Install plugin files
-        cp package.json "${PKG_DIR}/${SK_DATA}/system-plugins/signalk-halpi/"
+        # Install plugin files (strip devDependencies to prevent npm installing
+        # them when resolving the file: dependency)
+        python3 << PYEOF
+import json
+with open('package.json') as f:
+    pkg = json.load(f)
+pkg.pop('devDependencies', None)
+with open('${PKG_DIR}/${SK_DATA}/system-plugins/signalk-halpi/package.json', 'w') as f:
+    json.dump(pkg, f, indent=2)
+    f.write('\n')
+PYEOF
         cp -r dist/* "${PKG_DIR}/${SK_DATA}/system-plugins/signalk-halpi/dist/"
 
         # Generate binary control file

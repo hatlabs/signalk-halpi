@@ -9,6 +9,20 @@ case "$1" in
         # Remove the symlink (leave system-plugins intact for reinstall)
         rm -f "$SK_DATA/node_modules/signalk-halpi"
 
+        # Remove file: dependency from package.json
+        PKG_JSON="$SK_DATA/package.json"
+        if [ -f "$PKG_JSON" ]; then
+            python3 -c "
+import json
+with open('$PKG_JSON') as f:
+    pkg = json.load(f)
+pkg.get('dependencies', {}).pop('signalk-halpi', None)
+with open('$PKG_JSON', 'w') as f:
+    json.dump(pkg, f, indent=2)
+    f.write('\n')
+" || true
+        fi
+
         # Restart Signal K so it stops loading the plugin
         if [ -d /run/systemd/system ]; then
             systemctl restart "$SK_SERVICE" || true
@@ -17,6 +31,20 @@ case "$1" in
     purge)
         # Remove symlink
         rm -f "$SK_DATA/node_modules/signalk-halpi"
+
+        # Remove file: dependency from package.json
+        PKG_JSON="$SK_DATA/package.json"
+        if [ -f "$PKG_JSON" ]; then
+            python3 -c "
+import json
+with open('$PKG_JSON') as f:
+    pkg = json.load(f)
+pkg.get('dependencies', {}).pop('signalk-halpi', None)
+with open('$PKG_JSON', 'w') as f:
+    json.dump(pkg, f, indent=2)
+    f.write('\n')
+" || true
+        fi
 
         # Remove plugin config
         rm -f "$SK_DATA/plugin-config-data/signalk-halpi.json"
