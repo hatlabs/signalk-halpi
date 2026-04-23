@@ -6,11 +6,31 @@ SK_SERVICE="marine-signalk-server-container.service"
 
 case "$1" in
     configure)
-        # Create symlink from node_modules to system-plugins
-        # ln -sfn handles both fresh install and upgrade-after-npm-uninstall
+        # Register as a file: dependency in package.json so npm preserves the
+        # symlink across future npm install operations (e.g., when prestart.sh
+        # installs other plugins).
         if [ -d "$SK_DATA/system-plugins/signalk-halpi" ]; then
             mkdir -p "$SK_DATA/node_modules"
             ln -sfn ../system-plugins/signalk-halpi "$SK_DATA/node_modules/signalk-halpi"
+
+            # Add file: dependency to package.json (idempotent).
+            # Create a minimal package.json if it doesn't exist yet —
+            # without it, the first npm install would prune the symlink.
+            PKG_JSON="$SK_DATA/package.json"
+            python3 -c "
+import json, os
+path = '$PKG_JSON'
+if os.path.isfile(path):
+    with open(path) as f:
+        pkg = json.load(f)
+else:
+    pkg = {}
+deps = pkg.setdefault('dependencies', {})
+deps['signalk-halpi'] = 'file:system-plugins/signalk-halpi'
+with open(path, 'w') as f:
+    json.dump(pkg, f, indent=2)
+    f.write('\n')
+"
         fi
 
         # Auto-enable plugin on first install (don't override existing config)
