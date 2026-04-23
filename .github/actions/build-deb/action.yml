@@ -38,15 +38,7 @@ runs:
 
         # Install plugin files (strip devDependencies to prevent npm installing
         # them when resolving the file: dependency)
-        python3 << PYEOF
-import json
-with open('package.json') as f:
-    pkg = json.load(f)
-pkg.pop('devDependencies', None)
-with open('${PKG_DIR}/${SK_DATA}/system-plugins/signalk-halpi/package.json', 'w') as f:
-    json.dump(pkg, f, indent=2)
-    f.write('\n')
-PYEOF
+        python3 -c "import json; p=json.load(open('package.json')); p.pop('devDependencies',None); f=open('${PKG_DIR}/${SK_DATA}/system-plugins/signalk-halpi/package.json','w'); json.dump(p,f,indent=2); print(file=f)"
         cp -r dist/* "${PKG_DIR}/${SK_DATA}/system-plugins/signalk-halpi/dist/"
 
         # Generate binary control file

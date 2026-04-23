@@ -13,20 +13,24 @@ case "$1" in
             mkdir -p "$SK_DATA/node_modules"
             ln -sfn ../system-plugins/signalk-halpi "$SK_DATA/node_modules/signalk-halpi"
 
-            # Add file: dependency to package.json (idempotent)
+            # Add file: dependency to package.json (idempotent).
+            # Create a minimal package.json if it doesn't exist yet —
+            # without it, the first npm install would prune the symlink.
             PKG_JSON="$SK_DATA/package.json"
-            if [ -f "$PKG_JSON" ]; then
-                python3 -c "
-import json
-with open('$PKG_JSON') as f:
-    pkg = json.load(f)
+            python3 -c "
+import json, os
+path = '$PKG_JSON'
+if os.path.isfile(path):
+    with open(path) as f:
+        pkg = json.load(f)
+else:
+    pkg = {}
 deps = pkg.setdefault('dependencies', {})
 deps['signalk-halpi'] = 'file:system-plugins/signalk-halpi'
-with open('$PKG_JSON', 'w') as f:
+with open(path, 'w') as f:
     json.dump(pkg, f, indent=2)
     f.write('\n')
 "
-            fi
         fi
 
         # Auto-enable plugin on first install (don't override existing config)
