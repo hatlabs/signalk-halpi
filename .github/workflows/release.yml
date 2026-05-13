@@ -34,8 +34,15 @@ jobs:
           node-version: '22'
           registry-url: 'https://registry.npmjs.org'
 
-      - name: Install npm with trusted publishing support
-        run: npm install -g npm@latest
+      - name: Install pinned npm with trusted publishing support
+        # Pin via corepack rather than `npm install -g npm@latest` so a broken
+        # bundled npm in the Node toolcache (e.g. the MODULE_NOT_FOUND
+        # `promise-retry` regression seen in Node 22.22.2) cannot fail the
+        # install step.
+        run: |
+          corepack enable
+          corepack prepare npm@11.13.0 --activate
+          npm --version
 
       - name: Check if version exists on npm
         id: check
