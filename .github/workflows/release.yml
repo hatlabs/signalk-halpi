@@ -41,7 +41,7 @@ jobs:
         # install step.
         run: |
           corepack enable
-          corepack prepare npm@11.13.0 --activate
+          corepack prepare npm@11.14.1 --activate
           npm --version
 
       - name: Check if version exists on npm
