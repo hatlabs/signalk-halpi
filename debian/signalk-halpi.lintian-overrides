@@ -1,3 +1,7 @@
 # Intentional: restarting a container service, not managing a systemd unit
 signalk-halpi: maintainer-script-calls-systemctl [postinst:*]
 signalk-halpi: maintainer-script-calls-systemctl [postrm:*]
+
+# Changelog is auto-generated from commit subjects; not intended for the
+# Debian archive, so the 80-char readability limit is not a hard constraint.
+signalk-halpi: debian-changelog-line-too-long
