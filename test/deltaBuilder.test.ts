@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import type { PathValue } from '@signalk/server-api'
+import type { PathValue, Meta } from '@signalk/server-api'
 import { buildDynamicDelta, buildStaticDelta } from '../src/deltaBuilder.js'
 import type { HalpidValues, HalpidUsbStatus } from '../src/types.js'
 
@@ -82,6 +82,11 @@ describe('buildDynamicDelta', () => {
     const delta = buildDynamicDelta(sampleValues, sampleUsb, 'electrical.halpi')
     expect(String(delta.updates[0].$source)).toBe('halpi')
   })
+
+  it('carries no metadata', () => {
+    const delta = buildDynamicDelta(sampleValues, sampleUsb, 'electrical.halpi')
+    expect(delta.updates.some((u) => 'meta' in u)).toBe(false)
+  })
 })
 
 describe('buildStaticDelta', () => {
@@ -113,5 +118,65 @@ describe('buildStaticDelta', () => {
   it('sets context to vessels.self', () => {
     const delta = buildStaticDelta(sampleValues, 'electrical.halpi')
     expect(String(delta.context)).toBe('vessels.self')
+  })
+
+  it('separates the values update from the meta update', () => {
+    const delta = buildStaticDelta(sampleValues, 'electrical.halpi')
+    expect(delta.updates).toHaveLength(2)
+    expect('values' in delta.updates[0]).toBe(true)
+    expect('meta' in delta.updates[0]).toBe(false)
+    expect('meta' in delta.updates[1]).toBe(true)
+    expect('values' in delta.updates[1]).toBe(false)
+    expect(delta.updates[0].values as PathValue[]).toHaveLength(4)
+  })
+})
+
+describe('buildStaticDelta metadata', () => {
+  function metaByPath(prefix: string): Map<string, Meta['value']> {
+    const delta = buildStaticDelta(sampleValues, prefix)
+    const metaUpdate = delta.updates.find((u) => 'meta' in u)
+    expect(metaUpdate).toBeDefined()
+    const meta = (metaUpdate as { meta: Meta[] }).meta
+    return new Map(meta.map((m) => [String(m.path), m.value]))
+  }
+
+  it('publishes temperature metadata in kelvin', () => {
+    const byPath = metaByPath('electrical.halpi')
+    expect(byPath.get('electrical.halpi.mcuTemperature')?.units).toBe('K')
+    expect(byPath.get('electrical.halpi.pcbTemperature')?.units).toBe('K')
+  })
+
+  it('publishes voltage, current, and duration metadata with SI units', () => {
+    const byPath = metaByPath('electrical.halpi')
+    expect(byPath.get('electrical.halpi.dcInputVoltage')?.units).toBe('V')
+    expect(byPath.get('electrical.halpi.supercapVoltage')?.units).toBe('V')
+    expect(byPath.get('electrical.halpi.inputCurrent')?.units).toBe('A')
+    expect(byPath.get('electrical.halpi.watchdog.timeout')?.units).toBe('s')
+  })
+
+  it('gives every metadata path units, displayName, and description', () => {
+    const byPath = metaByPath('electrical.halpi')
+    expect(byPath.size).toBe(6)
+    for (const value of byPath.values()) {
+      expect(value.units).toBeTruthy()
+      expect(value.displayName).toBeTruthy()
+      expect(value.description).toBeTruthy()
+    }
+  })
+
+  it('only describes paths that the dynamic delta publishes', () => {
+    const byPath = metaByPath('electrical.halpi')
+    const dynamic = buildDynamicDelta(sampleValues, sampleUsb, 'electrical.halpi')
+    const dynamicPaths = new Set(
+      (dynamic.updates[0].values as PathValue[]).map((v) => String(v.path))
+    )
+    for (const metaPath of byPath.keys()) {
+      expect(dynamicPaths.has(metaPath)).toBe(true)
+    }
+  })
+
+  it('applies custom path prefix to metadata', () => {
+    const byPath = metaByPath('custom.prefix')
+    expect([...byPath.keys()].every((p) => p.startsWith('custom.prefix.'))).toBe(true)
   })
 })
