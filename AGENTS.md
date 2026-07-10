@@ -68,7 +68,7 @@ signalk-halpi/
 Simple poll-transform-publish pipeline:
 
 1. **halpidClient** — I/O boundary. `fetchValues()` and `fetchUsbStatus()` via `node:http` with `socketPath`
-2. **deltaBuilder** — Pure transformation. `buildDynamicDelta()` (12 paths, every poll) and `buildStaticDelta()` (4 paths, every 60th poll)
+2. **deltaBuilder** — Pure transformation. `buildDynamicDelta()` (12 paths, every poll) and `buildStaticDelta()` (4 value paths plus a `meta` update, every 60th poll)
 3. **index** — Plugin wiring. `start()` fires immediate poll, sets up `setInterval`. `stop()` clears interval
 
 Zero runtime dependencies — uses Node.js built-in `node:http` for Unix socket communication.
@@ -80,6 +80,8 @@ All paths under configurable prefix (default: `electrical.halpi`).
 **Dynamic values** (every poll): `dcInputVoltage`, `supercapVoltage`, `inputCurrent`, `mcuTemperature`, `pcbTemperature`, `powerState`, `watchdog.enabled`, `watchdog.timeout`, `usb.port0`–`usb.port3`
 
 **Static values** (every 60th poll): `daemonVersion`, `hardwareVersion`, `firmwareVersion`, `deviceId`
+
+**Metadata** (SI units, via a `meta` update folded into the static delta): `dcInputVoltage`/`supercapVoltage` → `V`, `inputCurrent` → `A`, `mcuTemperature`/`pcbTemperature` → `K`, `watchdog.timeout` → `s`. Each entry also carries `displayName` and `description`. The halpid `/values` endpoint already reports temperatures in Kelvin and the watchdog timeout in seconds, so no value conversion is needed.
 
 ## Configuration
 
