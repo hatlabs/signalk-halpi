@@ -5,3 +5,10 @@ signalk-halpi: maintainer-script-calls-systemctl [postrm:*]
 # Changelog is auto-generated from commit subjects; not intended for the
 # Debian archive, so the 80-char readability limit is not a hard constraint.
 signalk-halpi: debian-changelog-line-too-long
+
+# CI regenerates a single-entry changelog for every build, so lintian reads
+# the `-1` revision that follows each VERSION bump as an initial upload and
+# asks for a closed ITP bug; this package never reaches the Debian archive.
+# Above revision 1 the tag stays silent and lintian instead reports this
+# override as unused, at severity `info`, which does not fail the build.
+signalk-halpi: initial-upload-closes-no-bugs
