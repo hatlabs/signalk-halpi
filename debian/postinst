@@ -51,8 +51,11 @@ CONF
         fi
 
         # Restart Signal K to pick up the plugin
+        # --no-block: Signal K is ordered behind a provisioning one-shot with no
+        # start timeout, and a blocking restart holds the dpkg lock for as long as
+        # that waits -- which is indefinitely on a device with no uplink.
         if [ -d /run/systemd/system ]; then
-            systemctl restart "$SK_SERVICE" || true
+            systemctl restart --no-block "$SK_SERVICE" || true
         fi
         ;;
 esac
