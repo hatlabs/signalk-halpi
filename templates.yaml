@@ -1,0 +1,123 @@
+# Alert Rules template set for the HALPI2, shipped with signalk-halpi. The
+# package declares this file in its package.json field
+# `signalk-alert-templates`, next to the keyword of the same name. Alert Rules
+# reads it as data and never runs anything in the package.
+#
+# The plugin publishes under a configurable path prefix, `electrical.halpi`
+# by default. Every template reads electrical.<instance>.…, so pick `halpi`;
+# with a changed prefix the templates fit only one of the form
+# electrical.<name>, and the instance is <name>.
+#
+# Every number is in SI units (volts, kelvin, seconds), and every limit is a
+# starting point to adjust when using the template.
+name: HALPI2
+id: halpi2
+# Alert Rules records the set's id and version on every rule made from it.
+# Raise the version whenever a template changes.
+version: 1.0.0
+description: Power, temperature and reporting alerts for the HALPI2 computer.
+
+templates:
+  # The recommended input range is 10-32 VDC. Below 9.0 V the controller
+  # considers input power lost and starts the shutdown after its 5 s
+  # blackout timer; Signal K has stopped about 15-20 s after the drop, so a
+  # power-off at the master switch ends before this rule raises anything. Engine cranking dips last a few
+  # seconds. What remains is a supply that stays between 9 and 10 V.
+  - id: input-voltage-low
+    description: >-
+      The HALPI2 input voltage stays below 10 V, the bottom of its recommended
+      range, for 30 seconds, a warning. A power-off or an engine crank is
+      over before then. Pick instance halpi.
+    open: [instance]
+    condition: dcInputVoltageLow
+    rule:
+      name: HALPI2 input voltage low
+      # {limit} and {value} are filled in each time the alert is sent.
+      message: 'HALPI2 input voltage below {limit}: {value}'
+      signal:
+        path: electrical.${instance}.dcInputVoltage
+      detector:
+        type: sustained
+        direction: below
+        steps:
+          - { limit: 10, priority: warning }
+        duration: 30
+        hysteresis: 0.3
+        clearDuration: 10
+
+  # The HALPI2 is rated for an ambient temperature of -20 to +60 °C. The
+  # circuit board runs warmer than the air around it, so a board at 60 °C
+  # (333.15 K) warns before the ambient limit is reached.
+  - id: temperature-high
+    description: >-
+      The HALPI2 circuit board stays above 60 °C, the top of the rated
+      ambient range, for a minute, a warning, and above 70 °C, an alarm.
+      Pick instance halpi.
+    open: [instance]
+    condition: pcbTemperatureHigh
+    rule:
+      name: HALPI2 temperature high
+      message: 'HALPI2 board temperature above {limit}: {value}'
+      signal:
+        path: electrical.${instance}.pcbTemperature
+      detector:
+        type: sustained
+        direction: above
+        steps:
+          - { limit: 333.15, priority: warning }
+          - { limit: 343.15, priority: alarm }
+        duration: 60
+        hysteresis: 2
+
+  # The plugin publishes the input voltage on every poll of the halpid
+  # daemon, so its silence means the daemon or the plugin has stopped.
+  - id: not-reporting
+    description: >-
+      A warning that the halpid daemon or the signalk-halpi plugin stopped
+      reporting: the input voltage has been marked timed out by the server
+      for a minute, about two minutes after its last value with the
+      server's default timeout. Needs the server to enforce data timeouts;
+      without that, Alert Rules lists the rule as a problem. Pick instance
+      halpi.
+    open: [instance]
+    condition: dcInputVoltageNotReporting
+    rule:
+      name: HALPI2 not reporting
+      message: HALPI2 stopped reporting
+      signal:
+        path: electrical.${instance}.dcInputVoltage
+      detector:
+        type: match
+        op: timedOut
+        steps:
+          - { priority: warning }
+        duration: 60
+
+  # The supercapacitor bank charges to at most 10.8 V and typically sits at
+  # about 10.3 V. Well below that while input power is good, the bank is
+  # not charging and the board may not ride out a power loss.
+  - id: backup-not-charged
+    description: >-
+      The HALPI2 supercapacitor backup stays below 9.0 V for 10 minutes while
+      the input voltage is above 10 V, a caution that the backup is not
+      charging. Pick instance halpi.
+    open: [instance]
+    condition: supercapVoltageLow
+    rule:
+      name: HALPI2 backup not charged
+      message: 'HALPI2 supercapacitor voltage below {limit}: {value}'
+      signal:
+        path: electrical.${instance}.supercapVoltage
+      detector:
+        type: sustained
+        direction: below
+        steps:
+          - { limit: 9.0, priority: caution }
+        duration: 600
+      # Only while input power is good, so a power loss draining the bank
+      # raises nothing here.
+      gates:
+        - signal:
+            path: electrical.${instance}.dcInputVoltage
+          direction: above
+          limit: { kind: fixed, value: 10 }

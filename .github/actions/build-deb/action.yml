@@ -40,6 +40,7 @@ runs:
         # them when resolving the file: dependency)
         python3 -c "import json; p=json.load(open('package.json')); p.pop('devDependencies',None); f=open('${PKG_DIR}/${SK_DATA}/system-plugins/signalk-halpi/package.json','w'); json.dump(p,f,indent=2); print(file=f)"
         cp -r dist/* "${PKG_DIR}/${SK_DATA}/system-plugins/signalk-halpi/dist/"
+        cp templates.yaml "${PKG_DIR}/${SK_DATA}/system-plugins/signalk-halpi/"
 
         # Generate binary control file
         {

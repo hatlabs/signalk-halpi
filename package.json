@@ -12,8 +12,10 @@
     "halpi",
     "halpi2",
     "power-management",
-    "raspberry-pi"
+    "raspberry-pi",
+    "signalk-alert-templates"
   ],
+  "signalk-alert-templates": "templates.yaml",
   "scripts": {
     "build": "tsc",
     "build:watch": "tsc --watch",
@@ -54,12 +56,14 @@
     "prettier": "^3.5.3",
     "typescript": "^5.8.2",
     "typescript-eslint": "^8.29.1",
-    "vitest": "^3.1.1"
+    "vitest": "^3.1.1",
+    "yaml": "^2.9.1"
   },
   "files": [
     "dist/",
     "README.md",
-    "LICENSE"
+    "LICENSE",
+    "templates.yaml"
   ],
   "signalk-plugin-enabled-by-default": false
 }
