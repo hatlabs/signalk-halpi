@@ -1,10 +1,10 @@
 Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
 Upstream-Name: signalk-halpi
-Upstream-Contact: Hat Labs Ltd <info@hatlabs.fi>
+Upstream-Contact: Hat Labs Oy <info@hatlabs.fi>
 Source: https://github.com/hatlabs/signalk-halpi
 
 Files: *
-Copyright: 2025 Hat Labs Ltd <info@hatlabs.fi>
+Copyright: 2025 Hat Labs Oy <info@hatlabs.fi>
 License: Apache-2.0
 
 License: Apache-2.0

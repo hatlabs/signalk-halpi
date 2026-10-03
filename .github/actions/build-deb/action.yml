@@ -40,6 +40,7 @@ runs:
         # them when resolving the file: dependency)
         python3 -c "import json; p=json.load(open('package.json')); p.pop('devDependencies',None); f=open('${PKG_DIR}/${SK_DATA}/system-plugins/signalk-halpi/package.json','w'); json.dump(p,f,indent=2); print(file=f)"
         cp -r dist/* "${PKG_DIR}/${SK_DATA}/system-plugins/signalk-halpi/dist/"
+        cp templates.yaml "${PKG_DIR}/${SK_DATA}/system-plugins/signalk-halpi/"
 
         # Generate binary control file
         {
@@ -48,7 +49,7 @@ runs:
           echo "Architecture: all"
           echo "Section: misc"
           echo "Priority: optional"
-          echo "Maintainer: Hat Labs Ltd <info@hatlabs.fi>"
+          echo "Maintainer: Hat Labs Oy <info@hatlabs.fi>"
           echo "Depends: marine-signalk-server-container, halos-halpi2-marine"
           echo "Description: Signal K plugin for HALPI2 device monitoring"
           echo " Installs the signalk-halpi plugin into the marine-signalk-server-container"

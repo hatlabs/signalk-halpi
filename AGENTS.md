@@ -41,7 +41,8 @@ signalk-halpi/
 │   │   └── MockServerAPI.ts
 │   ├── deltaBuilder.test.ts
 │   ├── halpidClient.test.ts
-│   └── plugin.test.ts
+│   ├── plugin.test.ts
+│   └── templates.test.ts  # template set is declared and packaged
 ├── .github/
 │   ├── actions/
 │   │   ├── build-deb/     # Assembles .deb with dpkg-deb
@@ -51,6 +52,7 @@ signalk-halpi/
 │       ├── main.yml       # Build .deb, dispatch to unstable APT
 │       └── release.yml    # Publish stable to APT + npm
 ├── debian/                # Debian packaging metadata
+├── templates.yaml         # Alert Rules template set (npm + .deb)
 ├── VERSION                # Single source of version truth
 ├── .bumpversion.cfg       # Keeps VERSION and package.json in sync
 ├── package.json

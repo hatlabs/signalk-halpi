@@ -1,29 +1,7 @@
 import { describe, it, expect } from 'vitest'
 import type { PathValue, Meta } from '@signalk/server-api'
 import { buildDynamicDelta, buildStaticDelta } from '../src/deltaBuilder.js'
-import type { HalpidValues, HalpidUsbStatus } from '../src/types.js'
-
-const sampleValues: HalpidValues = {
-  V_in: 12.4,
-  V_cap: 4.8,
-  I_in: 1.2,
-  T_mcu: 315.5,
-  T_pcb: 310.2,
-  state: 'powered',
-  watchdog_enabled: true,
-  watchdog_timeout: 30,
-  daemon_version: '1.0.0',
-  hardware_version: '2.0',
-  firmware_version: '1.2.3',
-  device_id: 'halpi-001'
-}
-
-const sampleUsb: HalpidUsbStatus = {
-  usb0: true,
-  usb1: false,
-  usb2: true,
-  usb3: false
-}
+import { sampleValues, sampleUsb } from './helpers/fixtures.js'
 
 describe('buildDynamicDelta', () => {
   it('produces a delta with 12 path-value pairs', () => {
