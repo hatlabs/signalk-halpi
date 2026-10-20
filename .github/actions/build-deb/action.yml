@@ -50,7 +50,7 @@ runs:
           echo "Section: misc"
           echo "Priority: optional"
           echo "Maintainer: Hat Labs Oy <info@hatlabs.fi>"
-          echo "Depends: marine-signalk-server-container, halos-halpi2-marine"
+          echo "Depends: marine-signalk-server-container, halos-halpi2-marine, halpid (>= 5.0.2)"
           echo "Description: Signal K plugin for HALPI2 device monitoring"
           echo " Installs the signalk-halpi plugin into the marine-signalk-server-container"
           echo " Signal K instance. Publishes HALPI2 power management, temperature, watchdog,"
